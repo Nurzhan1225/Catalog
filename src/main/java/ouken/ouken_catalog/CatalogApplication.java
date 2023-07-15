@@ -26,24 +26,28 @@ public class CatalogApplication {
         // - Удаление товара [3]
         // Выберите действие: ___
 
-
         //Scanner scanner = new Scanner(System.in);
-        System.out.println("- Создание товара [1]\n- Редактирование товара [2]" +
-                "\n- Удаление товара [3]\nВыберите действие: ");
 
-        Integer CSD = Integer.parseInt(scanner.nextLine());
-
-        if (CSD == 1){
-            create();
-        }
-        else if (CSD == 2){
-            set();
-        }
-        else if (CSD == 3){
-            delete();
-        }
-        else {
-            System.out.println("ошибка");
+        while (true) {
+            System.out.println("- Создание товара [1]\n- Редактирование товара [2]" +
+                    "\n- Удаление товара [3]\n- Завершить процесс [4]\nВыберите действие: ");
+            Integer CSD = Integer.parseInt(scanner.nextLine());
+            while (CSD != 4) {
+                if (CSD == 1) {
+                    create();
+                } else if (CSD == 2) {
+                    set();
+                } else if (CSD == 3) {
+                    delete();
+                } else {
+                    System.out.println("ошибка");
+                }
+                break;
+            }
+            if (CSD == 4){
+                System.out.println("Процесс завершен");
+                break;
+            }
         }
     }
     private static void create() {
@@ -143,7 +147,7 @@ public class CatalogApplication {
             manager.getTransaction().begin();
 
             System.out.print("Введите id товара: ");
-            Integer product_id = scanner.nextInt();
+            Integer product_id = Integer.parseInt(scanner.nextLine());
 
             Product product = manager.find(Product.class, product_id);
             manager.remove(product);
