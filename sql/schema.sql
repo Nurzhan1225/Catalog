@@ -1,5 +1,5 @@
 
---drop  table if exists categories, product, characteristic, characteristic_value, discount, discount_product;
+drop  table if exists categories, product, characteristic, characteristic_value, discount, discount_product;
 
 create table categories
 (
