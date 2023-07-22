@@ -1,9 +1,6 @@
 package ouken.ouken_catalog;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.*;
 import ouken.ouken_catalog.entity.Category;
 import ouken.ouken_catalog.entity.Characteristic;
 import ouken.ouken_catalog.entity.Product;
@@ -44,33 +41,38 @@ public class CatalogApplication {
                 }
                 break;
             }
-            if (CSD == 4){
+            if (CSD == 4) {
                 System.out.println("Процесс завершен");
                 break;
             }
         }
     }
+
     private static void create() {
         EntityManager manager = factory.createEntityManager();
-        try{
+        try {
             manager.getTransaction().begin();//новую, отправить, откат
 
             TypedQuery<Category> categoryTypedQuery = manager.createQuery(
                     "select c from Category c order by c.id", Category.class);
             List<Category> categories = categoryTypedQuery.getResultList();
-            for (Category category : categories
-            ) {
-                System.out.println(category.getName() + " [" + category.getId() + "]");
+            for (int i = 0; i < categories.size(); i++) {
+                System.out.println(categories.get(i).getName() + " [" + (i+1) + "]");
             }
-
-            System.out.println("Выберите категорию: ");
-            int categoryId = Integer.parseInt(scanner.nextLine());
+            int categoryIndex = 0;
+            boolean t = false;
+            while (!t) {
+                System.out.println("Выберите категорию: ");
+                categoryIndex = Integer.parseInt(scanner.nextLine());
+                if (categoryIndex > categories.size()) {
+                } else t = true;
+            };
             System.out.println("Введите название: ");
             String productName = scanner.nextLine();
             System.out.println("Введите стоимость: ");
             int productPrice = Integer.parseInt(scanner.nextLine());
 
-            Category category = manager.find(Category.class, categoryId);
+            Category category = categories.get(categoryIndex);
 
             Product product = new Product();
             product.setName(productName);
@@ -90,12 +92,13 @@ public class CatalogApplication {
                 manager.persist(value);
             }
             manager.getTransaction().commit();
-        }catch (Exception e) {
+        } catch (Exception e) {
             manager.getTransaction().rollback();
             e.printStackTrace();
         }
     }
-    private static void set(){
+
+    private static void set() {
         EntityManager manager = factory.createEntityManager();
         try {
             manager.getTransaction().begin();
@@ -106,9 +109,9 @@ public class CatalogApplication {
             System.out.print("Введите новое название товара: ");
             String newProduct = scanner.nextLine();
 
-            if (newProduct.equals("")){
+            if (newProduct.equals("")) {
                 product.setName(product.getName());
-            } else  {
+            } else {
                 product.setName(newProduct);
             }
             System.out.print("Введите новую цену товара: ");
@@ -119,10 +122,9 @@ public class CatalogApplication {
                 newPrice1 = scanner.nextLine();
                 newPrice = newPrice1.matches("\\d*");
             }
-            if (newPrice1.equals("")){
+            if (newPrice1.equals("")) {
                 product.setPrice(product.getPrice());
-            }
-            else {
+            } else {
                 product.setPrice(Integer.parseInt(newPrice1));
             }
             List<Characteristic> characteristics = product.getCategory().getCharacteristics();
@@ -133,11 +135,21 @@ public class CatalogApplication {
                 );
                 valueTypedQuery.setParameter(1, product_id);
                 valueTypedQuery.setParameter(2, characteristic);
-                Value value = valueTypedQuery.getSingleResult();
-                System.out.println("Введите новое значение " + characteristic.getName() + ": ");
-                String newValue = scanner.nextLine();
-                if (!(newValue.isEmpty())) {
-                    value.setName(newValue);
+                try {
+                    Value value = valueTypedQuery.getSingleResult();
+                    System.out.println("Введите новое значение " + characteristic.getName() + ": ");
+                    String newValue = scanner.nextLine();
+                    if (!(newValue.isEmpty())) {
+                        value.setName(newValue);
+                    }
+                } catch (NoResultException e) {
+                    Value value1 = new Value();
+                    System.out.print("введите новое значение " + characteristic.getName() + ": ");
+                    String addValue = scanner.nextLine();
+                    value1.setName(addValue);
+                    value1.setProduct(product);
+                    value1.setCharacteristic(characteristic);
+                    manager.persist(value1);
                 }
             }
             manager.getTransaction().commit();
@@ -146,6 +158,7 @@ public class CatalogApplication {
             e.printStackTrace();
         }
     }
+
     private static void delete() {
         EntityManager manager = factory.createEntityManager();
         try {

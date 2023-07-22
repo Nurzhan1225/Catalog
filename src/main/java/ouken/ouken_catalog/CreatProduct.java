@@ -24,21 +24,26 @@ public class CreatProduct {
             TypedQuery<Category> categoryTypedQuery = manager.createQuery(
                     "select c from Category c order by c.id", Category.class);
             List<Category> categories = categoryTypedQuery.getResultList();
-            for (Category category : categories
-            ) {
-                System.out.println(category.getName() + " [" + category.getId() + "]");
+            for (int i = 0; i < categories.size(); i++) {
+                System.out.println(categories.get(i).getName() + " [" + (i+1) + "]");
             }
+            int categoryIndex = 0;
+            boolean t = false;
+            while (!t) {
+                System.out.println("Выберите категорию: ");
+                categoryIndex = Integer.parseInt(scanner.nextLine());
+                if (categoryIndex > categories.size()) {
+                } else t = true;
+            }
+                System.out.println("Введите название: ");
+                String productName = scanner.nextLine();
+                System.out.println("Введите стоимость: ");
+                int productPrice = Integer.parseInt(scanner.nextLine());
+                Category category = categories.get(categoryIndex - 1);
 
-            System.out.println("Выберите категорию: ");
-            int categoryId = Integer.parseInt(scanner.nextLine());
-            System.out.println("Введите название: ");
-            String productName = scanner.nextLine();
-            System.out.println("Введите стоимость: ");
-            int productPrice = Integer.parseInt(scanner.nextLine());
+                if (categoryIndex > categories.size()) {
 
-            Category category = manager.find(Category.class, categoryId);
-            System.out.println(category.getCharacteristics());
-
+                }
             Product product = new Product();
             product.setName(productName);
             product.setPrice(productPrice);
@@ -56,7 +61,6 @@ public class CreatProduct {
                 value.setName(characteristic_name);
                 manager.persist(value);
             }
-
             //Characteristic characteristic = manager.find(Characteristic.class, )
             // Выберите категорию: 2
             // Введите название: ___

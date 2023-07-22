@@ -1,9 +1,6 @@
 package ouken.ouken_catalog;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.*;
 import ouken.ouken_catalog.entity.Characteristic;
 import ouken.ouken_catalog.entity.Category;
 import ouken.ouken_catalog.entity.Product;
@@ -70,15 +67,23 @@ public class SetProduct {
                 );
                 valueTypedQuery.setParameter(1, product_id);
                 valueTypedQuery.setParameter(2, characteristic);
-                Value value = valueTypedQuery.getSingleResult();
-                System.out.println("Введите новое значение " + characteristic.getName() + ": ");
-                String newValue = sc.nextLine();
-                if (!(newValue.isEmpty())) {
-                      value.setName(newValue);
+                try {
+                    Value value = valueTypedQuery.getSingleResult();
+                    System.out.println("Введите новое значение " + characteristic.getName() + ": ");
+                    String newValue = sc.nextLine();
+                    if (!(newValue.isEmpty())) {
+                        value.setName(newValue);
+                    }
+                }catch (NoResultException e){
+                    Value value1 = new Value();
+                    System.out.print("введите новое значение " + characteristic.getName() + ": ");
+                    String addValue = sc.nextLine();
+                    value1.setName(addValue);
+                    value1.setProduct(product);
+                    value1.setCharacteristic(characteristic);
+                    manager.persist(value1);
                 }
             }
-
-
             /*Category category = manager.find(Category.class, product.getCategory().getId());
             System.out.println(category.getCharacteristics());
             for (Characteristic c: category.getCharacteristics()) {
