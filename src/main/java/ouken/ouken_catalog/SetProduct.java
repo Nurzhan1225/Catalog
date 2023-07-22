@@ -3,9 +3,13 @@ package ouken.ouken_catalog;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
+import ouken.ouken_catalog.entity.Characteristic;
+import ouken.ouken_catalog.entity.Category;
 import ouken.ouken_catalog.entity.Product;
 import ouken.ouken_catalog.entity.Value;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -47,7 +51,50 @@ public class SetProduct {
             else {
                 product.setPrice(Integer.parseInt(newPrice1));
             }
-            for (Value value : product.getValues()) {
+
+//            TypedQuery <Value> valueTypedQuery = manager.createQuery(
+//                    "select v from Value v where v.product.id = ?1", Value.class
+//            );
+//            valueTypedQuery.setParameter(1, product_id);
+//            List<Value> values = valueTypedQuery.getResultList();
+//            for (Value v:values) {
+//                System.out.println("Введите новое значение ("+v.getCharacteristic().getName()+"): ");
+//                String newValue = sc.nextLine();
+//                v.setName(newValue);
+//            }
+            List<Characteristic> characteristics = product.getCategory().getCharacteristics();
+            for (Characteristic characteristic : characteristics) {
+                // select
+                TypedQuery<Value> valueTypedQuery = manager.createQuery(
+                        "select v from Value v where v.product.id = ?1 and v.characteristic = ?2", Value.class
+                );
+                valueTypedQuery.setParameter(1, product_id);
+                valueTypedQuery.setParameter(2, characteristic);
+                Value value = valueTypedQuery.getSingleResult();
+                System.out.println("Введите новое значение " + characteristic.getName() + ": ");
+                String newValue = sc.nextLine();
+                if (!(newValue.isEmpty())) {
+                      value.setName(newValue);
+                }
+            }
+
+
+            /*Category category = manager.find(Category.class, product.getCategory().getId());
+            System.out.println(category.getCharacteristics());
+            for (Characteristic c: category.getCharacteristics()) {
+                System.out.println("Введите новое значение ("+c.getName()+"): ");
+
+                Characteristic characteristic = manager.find(Characteristic.class, c.getId());
+
+                if (newValue.equals("")){
+                    c.setName(c.getName());
+                } else {
+                    value.setProduct(product);
+                    value.setCharacteristic(characteristic);
+                    value.setName(newValue);
+                }
+            }*/
+            /*for (Value value : product.getValues()) {
                 System.out.print("Введите новое значение ("+value.getCharacteristic().getName()+"): ");
                 String newValue = sc.nextLine();
 
@@ -56,7 +103,7 @@ public class SetProduct {
                 } else {
                     value.setName(newValue);
                 }
-            }
+            }*/
 
             manager.getTransaction().commit();
         } catch (Exception e) {

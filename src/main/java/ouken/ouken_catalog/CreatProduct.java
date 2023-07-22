@@ -37,6 +37,7 @@ public class CreatProduct {
             int productPrice = Integer.parseInt(scanner.nextLine());
 
             Category category = manager.find(Category.class, categoryId);
+            System.out.println(category.getCharacteristics());
 
             Product product = new Product();
             product.setName(productName);

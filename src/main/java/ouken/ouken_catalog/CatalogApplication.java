@@ -125,13 +125,18 @@ public class CatalogApplication {
             else {
                 product.setPrice(Integer.parseInt(newPrice1));
             }
-            for (Value value : product.getValues()) {
-                System.out.print("Введите новое значение ("+value.getCharacteristic().getName()+"): ");
+            List<Characteristic> characteristics = product.getCategory().getCharacteristics();
+            for (Characteristic characteristic : characteristics) {
+                // select
+                TypedQuery<Value> valueTypedQuery = manager.createQuery(
+                        "select v from Value v where v.product.id = ?1 and v.characteristic = ?2", Value.class
+                );
+                valueTypedQuery.setParameter(1, product_id);
+                valueTypedQuery.setParameter(2, characteristic);
+                Value value = valueTypedQuery.getSingleResult();
+                System.out.println("Введите новое значение " + characteristic.getName() + ": ");
                 String newValue = scanner.nextLine();
-
-                if (newValue.equals("")){
-                    value.setName(value.getName());
-                } else {
+                if (!(newValue.isEmpty())) {
                     value.setName(newValue);
                 }
             }
